@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Model training and artifact creation."""

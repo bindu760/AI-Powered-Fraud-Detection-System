@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Load the trained model and score transactions."""

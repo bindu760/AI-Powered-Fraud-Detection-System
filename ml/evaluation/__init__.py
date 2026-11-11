@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Evaluation metrics for fraud classification."""

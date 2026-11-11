@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Transaction feature validation and preprocessing."""
