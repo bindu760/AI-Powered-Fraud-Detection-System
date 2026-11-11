@@ -1,171 +1,75 @@
-# 🛡️ AI-Powered Fraud Detection System
+# AI-Powered Fraud Detection System
 
-An intelligent fraud detection system that uses Machine Learning to identify suspicious financial transactions, predict fraud probability, and explain model predictions using Explainable AI (SHAP).
+A runnable learning/demo project with a scikit-learn fraud classifier, FastAPI prediction API, SQLite transaction history, and Streamlit dashboard. On the first prediction the API trains and saves a deterministic demonstration model automatically, so an external dataset or database is not needed to get started.
 
-## 🚀 Project Overview
+> This is a demonstration project. The synthetic training data and model are not suitable for real payment decisions.
 
-Financial fraud is a major challenge in digital payment systems. This project aims to detect fraudulent transactions using Machine Learning algorithms and provide insights into suspicious transaction patterns.
+## Requirements
 
-The system analyzes transaction data, predicts the likelihood of fraud, and classifies transactions based on their risk levels.
+- Python 3.11 (recommended) or 3.12
+- pip
 
-## ✨ Key Features
+Python 3.13+ may not have compatible wheels for the pinned scientific packages. PostgreSQL is optional; SQLite is the default.
 
-- **Fraud Detection:** Identify fraudulent financial transactions using Machine Learning.
-- **Fraud Probability:** Predict the probability of a transaction being fraudulent.
-- **Risk Classification:** Categorize transactions into Low, Medium, and High Risk.
-- **Explainable AI:** Use SHAP to understand why a transaction is classified as suspicious.
-- **Transaction Monitoring:** Store and monitor transaction records.
-- **Interactive Dashboard:** Visualize fraud statistics and transaction insights.
-- **Model Evaluation:** Evaluate model performance using multiple classification metrics.
+## Run locally (Windows PowerShell)
 
-## 🧠 Machine Learning Algorithms
+From this folder:
 
-- Logistic Regression
-- Random Forest
-- XGBoost
-- Isolation Forest (for anomaly detection)
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| Python | Core Programming |
-| Pandas & NumPy | Data Processing |
-| Scikit-learn | Machine Learning |
-| XGBoost | Fraud Classification |
-| SHAP | Explainable AI |
-| FastAPI | Backend API |
-| PostgreSQL | Database |
-| Streamlit | Dashboard |
-| Plotly | Data Visualization |
-
-## 🏗️ System Architecture
-
-```text
-Transaction Data
-       |
-       v
-Data Preprocessing
-       |
-       v
-Feature Engineering
-       |
-       v
-Machine Learning Model
-       |
-       v
-Fraud Probability
-       |
-       v
-Risk Classification
-       |
-       v
-SHAP Explainability
-       |
-       v
-FastAPI Backend
-       |
-       v
-PostgreSQL Database
-       |
-       v
-Streamlit Dashboard
-```
-
-## 📊 Model Evaluation
-
-The models will be evaluated using:
-
-- Accuracy
-- Precision
-- Recall
-- F1-Score
-- ROC-AUC
-- PR-AUC
-- Confusion Matrix
-
-Special attention will be given to fraud detection Recall and Precision because the dataset contains highly imbalanced classes.
-
-## 📂 Project Structure
-
-```text
-ai-fraud-detection/
-│
-├── backend/
-├── ml/
-├── data/
-├── dashboard/
-├── models/
-├── tests/
-├── notebooks/
-│
-├── requirements.txt
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
-## ⚙️ Installation & Setup
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/bindu760/ai-fraud-detection.git
-```
-
-### 2. Navigate to the project
-
-```bash
-cd ai-fraud-detection
-```
-
-### 3. Create virtual environment
-
-```bash
-python -m venv .venv
-```
-
-### 4. Activate environment
-
-Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-### 5. Install dependencies
-
-```bash
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
+Copy-Item .env.example .env
+python -m uvicorn backend.app.main:app --reload
 ```
 
-## 📈 Project Status
+Open `http://127.0.0.1:8000/docs` for interactive API docs. In another terminal, activate the same environment and run:
 
-🚧 Currently under development.
+```powershell
+streamlit run dashboard/app.py
+```
 
-Planned milestones:
+The dashboard is at `http://localhost:8501`. It uses the API at `http://127.0.0.1:8000` by default. The first prediction trains `models/fraud_model.joblib`; transaction records are saved in `data/fraud.db`.
 
-- [ ] Dataset collection and exploration
-- [ ] Data preprocessing and feature engineering
-- [ ] Machine Learning model training
-- [ ] Model evaluation and comparison
-- [ ] SHAP-based explainability
-- [ ] FastAPI backend development
-- [ ] PostgreSQL integration
-- [ ] Streamlit dashboard
-- [ ] Testing and deployment
+## API
 
-## 🎯 Project Goal
+- `GET /health` — process health
+- `GET /api/summary` — transaction and fraud-score aggregates
+- `GET /api/transactions?limit=100` — latest saved records
+- `POST /api/predict` — score and persist a transaction
 
-To build an intelligent and explainable fraud detection system that demonstrates practical applications of Machine Learning, data analysis, backend development, and Explainable AI in financial security.
+Example request:
 
-## 👩‍💻 Author
+```json
+{
+  "amount": 850.0,
+  "hour": 2,
+  "day_of_week": 5,
+  "is_international": 1,
+  "merchant_risk": 0.8,
+  "velocity_1h": 6
+}
+```
 
-**Bindu Bhandari**
+`day_of_week` is Monday=0 through Sunday=6. Risk levels are low (<35%), medium (35–69.9%), and high (70%+); `is_fraud` is true at a model probability of 50% or more.
 
-- GitHub: [@bindu760](https://github.com/bindu760)
-- Email: bibh_csit2081@lict.edu.np
+## Train with your own labeled CSV
 
----
+CSV must contain these columns: `amount,hour,day_of_week,is_international,merchant_risk,velocity_1h,is_fraud`. `is_fraud` must be 0/1 and include both classes. Train and save a model:
 
-⭐ If you find this project interesting, consider giving it a star!
+```powershell
+python -m ml.training.train --csv data/raw/transactions.csv
+```
+
+The output is `models/fraud_model.joblib`. The API will use it on its next start/request. To select a custom model or database URL, set `MODEL_PATH` or `DATABASE_URL` in `.env` before starting the API. Example optional PostgreSQL URL: `postgresql+psycopg2://user:password@localhost:5432/fraud`.
+
+## Project layout
+
+- `ml/` — feature validation, model training, and prediction
+- `backend/` — FastAPI routes, Pydantic schemas, SQLAlchemy persistence
+- `dashboard/` — Streamlit prediction form and analytics
+- `data/` — local database and optional datasets
+- `models/` — generated model artifact
+
+Generated model/database artifacts are ignored by git. See `.env.example` for supported settings.

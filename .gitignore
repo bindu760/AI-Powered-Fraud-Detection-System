@@ -28,6 +28,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+data/*.db
 
 # Trained model and serialized artifacts
 models/*.pkl
