@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Shared configuration and application setup."""

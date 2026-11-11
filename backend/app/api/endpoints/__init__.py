@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""HTTP endpoint modules."""

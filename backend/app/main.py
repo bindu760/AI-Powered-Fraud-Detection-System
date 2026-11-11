@@ -1,17 +1,21 @@
-﻿"""FastAPI application entry point."""
-
+"""FastAPI application entry point."""
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from backend.app.api.endpoints.transactions import router
+from backend.app.db.database import initialize
 
-app = FastAPI(title="AI Fraud Detection API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    initialize()
+    yield
 
+app = FastAPI(title="AI Fraud Detection API", version="1.0.0", description="Demo fraud scoring and transaction analytics API", lifespan=lifespan)
+app.include_router(router)
 
 @app.get("/")
 def root() -> dict[str, str]:
-    """Return a basic API status message."""
-    return {"status": "ok"}
-
+    return {"status": "ok", "service": "AI Fraud Detection API", "docs": "/docs"}
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
-    """Report that the API process is healthy."""
     return {"status": "healthy"}

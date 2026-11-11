@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Pydantic request and response schemas."""

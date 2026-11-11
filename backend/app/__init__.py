@@ -1,1 +1,1 @@
-﻿"""Project package."""
+﻿"""Fraud detection API application package."""
